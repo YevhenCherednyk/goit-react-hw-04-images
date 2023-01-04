@@ -1,52 +1,41 @@
-import React, { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { GalleryItem, GalleryItemImage } from './ImageGalleryItem.styled';
 
 import Modal from 'components/Modal';
 
-class ImageGalleryItem extends Component {
-  state = {
-    showModal: false,
-  };
+export default function ImageGalleryItem({
+  id,
+  tags,
+  webformatURL,
+  largeImageURL,
+}) {
+  const [showModal, setShowModal] = useState(false);
 
-  static propTypes = {
-    id: PropTypes.number.isRequired,
-    tags: PropTypes.string.isRequired,
-    webformatURL: PropTypes.string.isRequired,
-    largeImageURL: PropTypes.string.isRequired,
-  };
+  const openModal = () => setShowModal(true);
 
-  openModal = () => {
-    this.setState({
-      showModal: true,
-    });
-  };
+  const closeModal = () => setShowModal(false);
 
-  closeModal = () => {
-    this.setState({
-      showModal: false,
-    });
-  };
-
-  render() {
-    const { id, tags, webformatURL, largeImageURL } = this.props;
-    const { showModal } = this.state;
-    return (
-      <GalleryItem id={id}>
-        <GalleryItemImage
-          src={webformatURL}
-          alt={tags}
-          onClick={this.openModal}
-          loading="lazy"
-        />
-        {showModal && (
-          <Modal onClose={this.closeModal}>
-            <img src={largeImageURL} alt={tags}></img>
-          </Modal>
-        )}
-      </GalleryItem>
-    );
-  }
+  return (
+    <GalleryItem id={id}>
+      <GalleryItemImage
+        src={webformatURL}
+        alt={tags}
+        onClick={openModal}
+        loading="lazy"
+      />
+      {showModal && (
+        <Modal onClose={closeModal}>
+          <img src={largeImageURL} alt={tags}></img>
+        </Modal>
+      )}
+    </GalleryItem>
+  );
 }
 
-export default ImageGalleryItem;
+ImageGalleryItem.propTypes = {
+  id: PropTypes.number.isRequired,
+  tags: PropTypes.string.isRequired,
+  webformatURL: PropTypes.string.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
+};
