@@ -17,7 +17,6 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalHits, setTotalHits] = useState(null);
   const [totalPages, setTotalPages] = useState(null);
   const [status, setStatus] = useState('idle');
 
@@ -52,7 +51,6 @@ export default function App() {
         }
 
         setImages(prevImages => [...prevImages, ...newImg]);
-        setTotalHits(totalHits);
         setTotalPages(totalPages);
       } catch (error) {
         toast.error(error.message);
@@ -68,7 +66,6 @@ export default function App() {
     setQuery(query);
     setImages([]);
     setPage(1);
-    setTotalHits(null);
     setTotalPages(null);
     setStatus('idle');
   };
