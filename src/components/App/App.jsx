@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,29 +13,21 @@ import { AppContainer } from './App.styled';
 
 const IMG_PER_PAGE = 12;
 
-class App extends Component {
-  state = {
-    query: '',
-    images: [],
-    page: 1,
-    totalHits: null,
-    totalPages: null,
-    status: 'idle',
-  };
+export default function App() {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalHits, setTotalHits] = useState(null);
+  const [totalPages, setTotalPages] = useState(null);
+  const [status, setStatus] = useState('idle');
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { query, page, images } = this.state;
-    const prevPage = prevState.page;
-    const prevQuery = prevState.query;
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
 
-    // if (!query) {
-    //   this.setState({ images: [] });
-    //   return;
-    // }
-
-    if (page !== prevPage || query !== prevQuery) {
-      this.setState({ status: 'pending' });
-
+    async function getData() {
+      setStatus('pending');
       try {
         const { hits, totalHits } = await API.findImages(query, page);
         const totalPages = Math.ceil(totalHits / IMG_PER_PAGE);
@@ -59,51 +51,42 @@ class App extends Component {
           );
         }
 
-        this.setState({
-          images: [...images, ...newImg],
-          totalHits,
-          totalPages,
-        });
+        setImages(prevImages => [...prevImages, ...newImg]);
+        setTotalHits(totalHits);
+        setTotalPages(totalPages);
       } catch (error) {
         toast.error(error.message);
       } finally {
-        this.setState({ status: 'resolved' });
+        setStatus('resolved');
       }
     }
-  }
 
-  handleFormSubmit = query => {
-    this.setState({
-      query,
-      images: [],
-      page: 1,
-      totalHits: null,
-      totalPages: null,
-      status: 'idle',
-    });
+    getData();
+  }, [query, page]);
+
+  const handleFormSubmit = query => {
+    setQuery(query);
+    setImages([]);
+    setPage(1);
+    setTotalHits(null);
+    setTotalPages(null);
+    setStatus('idle');
   };
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const loadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  render() {
-    const { status, images, page, totalPages } = this.state;
-    const btnisVisible =
-      images.length > 0 && page !== totalPages && status === 'resolved';
+  const btnisVisible =
+    images.length > 0 && page !== totalPages && status === 'resolved';
 
-    return (
-      <AppContainer>
-        <Searchbar onSubmit={this.handleFormSubmit} images={images} />
-        {images.length > 0 && <ImageGallery images={images} />}
-        {status === 'pending' && <Loader />}
-        {btnisVisible && <Button onClick={this.loadMore} />}
-        <ToastContainer theme="colored" autoClose={3000} />
-      </AppContainer>
-    );
-  }
+  return (
+    <AppContainer>
+      <Searchbar onSubmit={handleFormSubmit} images={images} />
+      {images.length > 0 && <ImageGallery images={images} />}
+      {status === 'pending' && <Loader />}
+      {btnisVisible && <Button onClick={loadMore} />}
+      <ToastContainer theme="colored" autoClose={3000} />
+    </AppContainer>
+  );
 }
-
-export default App;

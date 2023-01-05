@@ -9,7 +9,7 @@ import {
   SearchFormInput,
 } from './Searchbar.styled';
 
-export default function Serchbar({ onSubmit }) {
+export default function Serchbar({ onSubmit, images }) {
   const [query, setQuery] = useState('');
 
   const handleChange = evt => {
@@ -24,7 +24,7 @@ export default function Serchbar({ onSubmit }) {
       return toast.warning('Please enter a valid value!');
     }
 
-    onSubmit(query);
+    onSubmit(query.trim());
 
     reset();
   };
